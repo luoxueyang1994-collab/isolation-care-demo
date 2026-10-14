@@ -6,3 +6,5 @@ Live site: https://luoxueyang1994-collab.github.io/isolation-care-demo/
 
 - `index.html` — clickable demo
 - `CUT.md` — interaction cut notes (2026-10-13)
+
+Visuals polished 2026-10-14 (magazine C).
