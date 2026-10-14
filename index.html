@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>隔离期照护 · 首屏交互 demo（2026-10-13）</title>
+<style>
+  :root {
+    --bg: #F3F6F5;
+    --card: #FFFFFF;
+    --ink: #15211D;
+    --muted: #5A6762;
+    --line: #D5DED9;
+    --accent: #0E7A73;
+    --accent-soft: #D8EFEC;
+    --soft: #E8EEEC;
+    --warn: #8A4B12;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    background: #0B1210;
+    color: var(--ink);
+  }
+  .stage {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .meta h1 { margin: 0 0 8px; font-size: 1.25rem; color: #E8F0EC; }
+  .meta p { margin: 0 0 10px; color: #9BB0A8; font-size: .92rem; }
+  .meta ul { margin: 0; padding-left: 1.1em; color: #B7C7C0; font-size: .9rem; }
+  .meta li { margin-bottom: 6px; }
+  .phone {
+    width: 360px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #1A1F1E;
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+  .screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    min-height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+  .status {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .nav {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
+    padding: 6px 12px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+  }
+  .nav .t { text-align: center; font-weight: 650; font-size: 16px; }
+  .body { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .kept {
+    background: var(--card);
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    padding: 12px 14px;
+    color: var(--muted);
+    font-size: .86rem;
+  }
+  .kept strong { color: var(--ink); font-weight: 650; }
+  .care {
+    background: linear-gradient(180deg, #E7F6F3, #F7FBFA);
+    border: 1px solid #C6E4DF;
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+  }
+  .care .label { font-size: 11px; letter-spacing: .04em; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .care p { margin: 0; font-size: 15px; font-weight: 600; }
+  .section-title { margin: 4px 2px 0; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .q {
+    all: unset;
+    display: block;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 13px 14px;
+    cursor: pointer;
+  }
+  .q:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .q .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .q .row strong { font-size: 14.5px; }
+  .q .chev { color: var(--muted); font-size: 18px; line-height: 1; transition: transform .2s; }
+  .q[aria-expanded="true"] { border-color: var(--accent); background: #F7FCFA; }
+  .q[aria-expanded="true"] .chev { transform: rotate(90deg); color: var(--accent); }
+  .answer {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--soft);
+    color: var(--ink);
+    font-size: 13.5px;
+  }
+  .q[aria-expanded="true"] .answer { display: block; }
+  .answer ul { margin: 6px 0 0; padding-left: 1.15em; }
+  .answer li { margin-bottom: 4px; }
+  .soft-ask {
+    margin-top: 4px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .soft-ask p { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+  .soft-ask .actions { display: flex; gap: 8px; }
+  .soft-ask button {
+    flex: 1;
+    border: 1px solid var(--line);
+    background: var(--soft);
+    border-radius: 999px;
+    padding: 9px 0;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .soft-ask button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .note {
+    margin-top: auto;
+    font-size: 11.5px;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px 8px 8px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--warn);
+    background: #F8E8D4;
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 820px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div>
+      <div class="phone" aria-label="手机演示框">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>5G ▮</span></div>
+          <div class="nav"><span>‹</span><div class="t">隔离期照护</div><span></span></div>
+          <div class="body">
+            <div class="kept">
+              <strong>上半部分保留</strong><br>
+              原页面顶部信息区占位（档案摘要 / 申请入口等按现网保留，本 demo 不改）。
+            </div>
+
+            <div class="care">
+              <div class="label">一句话关怀</div>
+              <p>孩子这段时间在家休养，我们陪你把照护重点想清楚。</p>
+            </div>
+
+            <div class="section-title">你现在最想先确认哪一件？</div>
+
+            <button class="q" type="button" aria-expanded="false" data-q="out">
+              <div class="row"><strong>这段时间还能不能出门玩？</strong><span class="chev">›</span></div>
+              <div class="answer">
+                <div class="badge">点开后才生成 · 可埋点</div>
+                隔离期建议尽量减少外出，尤其是去人多的室内场所。户外短暂散步可以，但要避开其他小朋友近距离接触。具体以医生意见和园所复课要求为准。
+              </div>
+            </button>
+
+            <button class="q" type="button" aria-expanded="false" data-q="eat">
+              <div class="row"><strong>吃饭和喝水要注意什么？</strong><span class="chev">›</span></div>
+              <div class="answer">
+                <div class="badge">点开后才生成 · 可埋点</div>
+                <ul>
+                  <li>少食多餐，优先温凉、软烂、清淡的食物。</li>
+                  <li>口腔溃疡时避免过烫、过酸、过咸。</li>
+                  <li>少量多次补水；尿量明显减少时要尽快联系医生。</li>
+                </ul>
+              </div>
+            </button>
+
+            <button class="q" type="button" aria-expanded="false" data-q="home">
+              <div class="row"><strong>居家照料时先盯哪几件事？</strong><span class="chev">›</span></div>
+              <div class="answer">
+                <div class="badge">点开后才生成 · 可埋点</div>
+                <ul>
+                  <li>精神状态：还能玩、能睡，比单纯看体温更重要。</li>
+                  <li>体温与皮疹/口腔情况的变化。</li>
+                  <li>手足口相关：高热不退、惊跳、呕吐、四肢无力等要立即就医。</li>
+                </ul>
+              </div>
+            </button>
+
+            <div class="soft-ask">
+              <p>要不要先了解一下小朋友近期的健康情况？</p>
+              <div class="actions">
+                <button type="button" class="primary" id="yes-health">想了解</button>
+                <button type="button" id="later-health">先不用</button>
+              </div>
+              <p id="health-hint" class="note" style="display:none;margin:10px 0 0;text-align:left">演示：这里可引导到健康关注页或商城，具体去向本周再定。不展示对话框，也不直接推「整体健康小结」。</p>
+            </div>
+
+            <div class="note">演示稿 · 依据 2026-10-13 相关项目沟通决定 · 非医疗诊断</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <h1>明天可讲的首屏交互</h1>
+      <p>按今天会议决定：上半保留；首屏一句话关怀 + 3 个预设问题；点了才出结论；不展示对话框；不用整体健康小结，改成引导提问。</p>
+      <ul>
+        <li>埋点机会：每个预设问题的点击</li>
+        <li>数据窗口倾向近 30 天（待你确认字段可提供）</li>
+        <li>17 号发 7.0；若方案没问题，从明天起集中做这个 demo</li>
+        <li>文案可替换；「14 天隔离」参考图到了可以贴进上半占位区</li>
+      </ul>
+    </div>
+  </div>
+<script>
+  document.querySelectorAll('.q').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.q').forEach((other) => other.setAttribute('aria-expanded', 'false'));
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+  const hint = document.getElementById('health-hint');
+  document.getElementById('yes-health').addEventListener('click', () => { hint.style.display = 'block'; });
+  document.getElementById('later-health').addEventListener('click', () => { hint.style.display = 'none'; });
+</script>
+</body>
+</html>
